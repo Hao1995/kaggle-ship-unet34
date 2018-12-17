@@ -17,6 +17,8 @@ val_images_path = ''
 val_segs_path = ''
 val_batch_size = 2
 
+STEPS_PER_EPOCH = 5
+
 try:
     os.makedirs(train_images_path)
 except:
@@ -50,15 +52,24 @@ if validate:
     G2 = LoadBatches.imageSegmentationGenerator(val_images_path, val_segs_path, val_batch_size, n_classes, input_height,
                                                 input_width, output_height, output_width)
 
+# if not validate:
+#     for ep in range(epochs):
+#         # while True:
+#         print('current epoch:', ep)
+#         model.fit_generator(G, 400//train_batch_size, epochs=1)
+#         model.save_weights(save_weights_path + "model_" + str(ep) + ".h5")
+#         model.save(save_weights_path + "model_" + str(ep) + ".json")
+# else:
+#     for ep in range(epochs):
+#         model.fit_generator(G, 512, validation_data=G2, validation_steps=200, epochs=1)
+#         model.save_weights(save_weights_path + "." + str(ep))
+#         model.save(save_weights_path + "model_" + str(ep) + ".h5")
+
 if not validate:
-    for ep in range(epochs):
-        # while True:
-        print('current epoch:', ep)
-        model.fit_generator(G, 400//train_batch_size, epochs=1)
-        model.save_weights(save_weights_path + "model_" + str(ep) + ".h5")
-        model.save(save_weights_path + "model_" + str(ep) + ".json")
+    model.fit_generator(G, steps_per_epoch=STEPS_PER_EPOCH)
+    model.save_weights(save_weights_path + "model_steps." + str(STEPS_PER_EPOCH))
+    model.save(save_weights_path + "model_steps" + str(STEPS_PER_EPOCH) + ".h5")
 else:
-    for ep in range(epochs):
-        model.fit_generator(G, 512, validation_data=G2, validation_steps=200, epochs=1)
-        model.save_weights(save_weights_path + "." + str(ep))
-        model.save(save_weights_path + "model_" + str(ep) + ".h5")
+    model.fit_generator(G, steps_per_epoch=STEPS_PER_EPOCH, validation_data=G2, validation_steps=200)
+    model.save_weights(save_weights_path + "model_steps." + str(STEPS_PER_EPOCH))
+    model.save(save_weights_path + "model_steps" + str(STEPS_PER_EPOCH) + ".h5")

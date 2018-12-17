@@ -4,25 +4,24 @@ import glob
 import cv2
 import numpy as np
 
-
 def predict_segmentation():
     n_classes = 2
     images_path = 'data/test/'
-    input_width = 64
-    input_height = 96
-    epoch_number = 100
+    input_width = 768
+    input_height = 768
+    epoch_number = 5
 
     output_path = 'data/seg_results/'
 
     m = Models.Unet(n_classes, input_height=input_height, input_width=input_width)
 
-    m.load_weights("results/model_" + str(epoch_number-1) + ".h5")
+    m.load_weights("results/model_steps" + str(epoch_number) + ".h5")
     m.compile(loss='categorical_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
 
-    output_height = 96
-    output_width = 64
+    output_height = 768
+    output_width = 768
 
     images = glob.glob(images_path + "*.jpg") + glob.glob(images_path + "*.png") + glob.glob(images_path + "*.jpeg")
     images.sort()
