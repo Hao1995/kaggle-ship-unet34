@@ -1,0 +1,4 @@
+data/
+results/
+unet_person_venv/
+__pycache__/

@@ -7,20 +7,27 @@ import os
 
 
 def getImageArr(path, width, height, imgNorm="sub_and_divide"):
+    """
+    
+    """
     try:
+        # 'cv2.imread' : 0 flag means grayscale mode
         img = cv2.imread(path, 0)
         im = np.zeros((height, width, 1))
 
         if imgNorm == "sub_and_divide":
-            im[:,:,0] = np.float32(img) / 127.5 -1
+            # Preprocess Input >> mode = tf (will scale pixels between -1 and 1)
+            im[:,:,0] = np.float32(img) / 127.5 -1 
             # img = np.float32(cv2.resize(img, (width, height))) / 127.5 - 1
         elif imgNorm == "sub_mean":
+            # Preprocess Input >> mode = caffe (will convert the images from RGB to BGR, then will zero-center each color channel with respect to the ImageNet dataset)
             img = cv2.resize(img, (width, height))
             img = img.astype(np.float32)
-            img[:, :, 0] -= 103.939
-            img[:, :, 1] -= 116.779
-            img[:, :, 2] -= 123.68
+            img[:, :, 0] -= 103.939 # B
+            img[:, :, 1] -= 116.779 # G
+            img[:, :, 2] -= 123.68 # R
         elif imgNorm == "divide":
+            # Preprocess Input >> mode = torch (will scale pixels between 0 and 1 and then will normalize each channel with respect to the ImageNet dataset)
             img = cv2.resize(img, (width, height))
             img = img.astype(np.float32)
             img = img / 255.0
@@ -58,11 +65,13 @@ def imageSegmentationGenerator(images_path, segs_path, batch_size, n_classes, in
         images[i] = images_path + images[i]
         segmentations[i] = segs_path + segmentations[i]
 
+    # Make sure the length of 'images' and 'segmentations' is the same.
     assert len(images) == len(segmentations)
     for im, seg in zip(images, segmentations):
-
+        # Make sure the image name is the same.
         assert (im.split('/')[-1].split(".")[0] == seg.split('/')[-1].split(".")[0])
 
+    # 'itertools.cycle' EX: [a,b,c] >> [a,b,c,a,b,c,a, ... , c, a, ...]. infinite loop.
     zipped = itertools.cycle(zip(images, segmentations))
 
     while True:

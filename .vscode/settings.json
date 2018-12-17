@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "unet_person_venv\\Scripts\\python.exe",
+    "git.ignoreLimitWarning": true
+}

@@ -1,12 +1,13 @@
 import Models
 import LoadBatches
+import os
 
 train_images_path = 'data/train/'
 train_segs_path = 'data/label/'
 train_batch_size = 1
 n_classes = 2
-input_height = 96
-input_width = 64
+input_height = 768
+input_width = 768
 validate = False
 save_weights_path = 'results/'
 epochs = 100
@@ -16,6 +17,21 @@ val_images_path = ''
 val_segs_path = ''
 val_batch_size = 2
 
+try:
+    os.makedirs(train_images_path)
+except:
+    print('Make directory', train_images_path, 'happend error.')
+
+try:
+    os.makedirs(train_segs_path)
+except:
+    print('Make directory', train_segs_path, 'happend error.')
+
+try:
+    os.makedirs(save_weights_path)
+except:
+    print('Make directory', save_weights_path, 'happend error.')
+
 model = Models.Unet(n_classes, input_height=input_height, input_width=input_width)
 
 model.compile(loss='categorical_crossentropy',
@@ -24,8 +40,8 @@ model.compile(loss='categorical_crossentropy',
 
 print("Model output shape", model.output_shape)
 model.summary()
-output_height = 96
-output_width = 64
+output_height = 768
+output_width = 768
 
 G = LoadBatches.imageSegmentationGenerator(train_images_path, train_segs_path, train_batch_size, n_classes,
                                            input_height, input_width, output_height, output_width)
@@ -36,6 +52,7 @@ if validate:
 
 if not validate:
     for ep in range(epochs):
+        # while True:
         print('current epoch:', ep)
         model.fit_generator(G, 400//train_batch_size, epochs=1)
         model.save_weights(save_weights_path + "model_" + str(ep) + ".h5")
