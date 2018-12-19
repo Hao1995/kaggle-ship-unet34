@@ -9,13 +9,13 @@ def predict_segmentation():
     images_path = 'data/test/'
     input_width = 768
     input_height = 768
-    epoch_number = 5
+    epoch_number = 10
 
     output_path = 'data/seg_results/'
 
     m = Models.Unet(n_classes, input_height=input_height, input_width=input_width)
 
-    m.load_weights("results/model_steps" + str(epoch_number) + ".h5")
+    m.load_weights("results/model_" + 'epochs' + str(epoch_number) + ".h5")
     m.compile(loss='categorical_crossentropy',
               optimizer='adam',
               metrics=['accuracy'])
@@ -29,7 +29,7 @@ def predict_segmentation():
     colors = [(0, 0, 0), (255, 255, 255)]
 
     for imgName in images:
-        # imgName = imgName.replace('\\', '/')
+        imgName = imgName.replace('\\', '/')
         outName = imgName.replace(images_path, output_path)
         X = LoadBatches.getImageArr(imgName, input_width, input_height)
         pr = m.predict(np.array([X]))[0]

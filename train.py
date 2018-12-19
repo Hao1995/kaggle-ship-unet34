@@ -6,11 +6,16 @@ train_images_path = 'data/train/'
 train_segs_path = 'data/label/'
 train_batch_size = 1
 n_classes = 2
+
 input_height = 768
 input_width = 768
+output_height = 768
+output_width = 768
+
 validate = False
 save_weights_path = 'results/'
-epochs = 100
+# epochs = 100
+EPOCHS = 10
 optimizer_name = 'adam'
 
 val_images_path = ''
@@ -42,8 +47,6 @@ model.compile(loss='categorical_crossentropy',
 
 print("Model output shape", model.output_shape)
 model.summary()
-output_height = 768
-output_width = 768
 
 G = LoadBatches.imageSegmentationGenerator(train_images_path, train_segs_path, train_batch_size, n_classes,
                                            input_height, input_width, output_height, output_width)
@@ -54,7 +57,6 @@ if validate:
 
 # if not validate:
 #     for ep in range(epochs):
-#         # while True:
 #         print('current epoch:', ep)
 #         model.fit_generator(G, 400//train_batch_size, epochs=1)
 #         model.save_weights(save_weights_path + "model_" + str(ep) + ".h5")
@@ -66,9 +68,15 @@ if validate:
 #         model.save(save_weights_path + "model_" + str(ep) + ".h5")
 
 if not validate:
-    model.fit_generator(G, steps_per_epoch=STEPS_PER_EPOCH)
-    model.save_weights(save_weights_path + "model_steps." + str(STEPS_PER_EPOCH))
-    model.save(save_weights_path + "model_steps" + str(STEPS_PER_EPOCH) + ".h5")
+    # === Steps_Per_Epoch
+    # model.fit_generator(G, steps_per_epoch=STEPS_PER_EPOCH)
+    # model.save_weights(save_weights_path + "model_steps." + str(STEPS_PER_EPOCH))
+    # model.save(save_weights_path + "model_steps" + str(STEPS_PER_EPOCH) + ".h5")
+
+    # === Epochs 
+    model.fit_generator(G, 400//train_batch_size, epochs=EPOCHS)
+    model.save_weights(save_weights_path + "model_epochs." + str(EPOCHS))
+    model.save(save_weights_path + "model_epochs" + str(EPOCHS) + ".h5")
 else:
     model.fit_generator(G, steps_per_epoch=STEPS_PER_EPOCH, validation_data=G2, validation_steps=200)
     model.save_weights(save_weights_path + "model_steps." + str(STEPS_PER_EPOCH))
