@@ -12,13 +12,19 @@ def getImageArr(path, width, height, imgNorm="sub_and_divide"):
     """
     try:
         # 'cv2.imread' : 0 flag means grayscale mode
-        img = cv2.imread(path, 0)
-        im = np.zeros((height, width, 1))
+        # img = cv2.imread(path, 0)
+        img = cv2.imread(path, cv2.IMREAD_COLOR)
+        # cv2.imshow(imgNorm+'0', img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        # im = np.zeros((height, width, 1))
+        # cv2.imshow(imgNorm+'1', im)
 
         if imgNorm == "sub_and_divide":
             # Preprocess Input >> mode = tf (will scale pixels between -1 and 1)
-            im[:,:,0] = np.float32(img) / 127.5 -1 
-            # img = np.float32(cv2.resize(img, (width, height))) / 127.5 - 1
+            # im[:,:,0] = np.float32(img) / 127.5 -1 
+            # im[:,:,0] = np.float32(cv2.resize(img, (width, height))) / 127.5 -1 
+            img = np.float32(cv2.resize(img, (width, height))) / 127.5 - 1
         elif imgNorm == "sub_mean":
             # Preprocess Input >> mode = caffe (will convert the images from RGB to BGR, then will zero-center each color channel with respect to the ImageNet dataset)
             img = cv2.resize(img, (width, height))
@@ -31,7 +37,12 @@ def getImageArr(path, width, height, imgNorm="sub_and_divide"):
             img = cv2.resize(img, (width, height))
             img = img.astype(np.float32)
             img = img / 255.0
-        return im
+        # cv2.imshow(imgNorm+'2', img)
+
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        # return im
+        return img
     except Exception as e:
         print(path, e)
         im = np.zeros((height, width, 3))
@@ -79,7 +90,7 @@ def imageSegmentationGenerator(images_path, segs_path, batch_size, n_classes, in
         Y = []
         for _ in range(batch_size):
             im, seg = next(zipped)
-            X.append(getImageArr(im, input_width, input_height))
+            X.append(getImageArr(im, input_width, input_height, imgNorm='divide'))
             Y.append(getSegmentationArr(seg, n_classes, output_width, output_height))
 
         yield np.array(X), np.array(Y)

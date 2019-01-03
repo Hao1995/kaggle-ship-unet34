@@ -2,3 +2,4 @@ data/
 results/
 unet_person_venv/
 __pycache__/
+training_callback/
