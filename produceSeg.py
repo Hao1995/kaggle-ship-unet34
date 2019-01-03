@@ -25,7 +25,8 @@ def rle_decode(mask_str, shape):
     
     return img.reshape(shape)
     
-maskDir = 'data/mask'
+maskDir = 'data/label'
+
 try:
     os.makedirs(maskDir)
 except:
