@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 import os
 
+import os.path
+
 from PIL import Image
 
 def rle_encode(img):
@@ -24,7 +26,7 @@ def rle_decode(mask_str, shape):
         img[lo:hi] = 1
     
     return img.reshape(shape)
-    
+
 maskDir = 'data/mask'
 try:
     os.makedirs(maskDir)
@@ -38,37 +40,39 @@ print('Total masks to encode/decode =', num_masks)
 count = 0
 for r in masks.itertuples():
     
-    size = (768, 768)
-    mask = rle_decode(r[2], size)
-    
-    file_path = maskDir + '/'+ r[1]
+    if os.path.isfile('data/train/' + r[1]) :
 
-    if not r[2] == '':
+        size = (768, 768)
+        mask = rle_decode(r[2], size)
+        
         file_path = maskDir + '/'+ r[1]
-        if os.path.exists(file_path):
-            img = Image.open(file_path).convert('1')
 
-            # img.show()
-            pixels = img.load()
-            
-            for i in range(img.size[0]):
-                for j in range(img.size[1]):
-                    if pixels[i, j] == 0:
+        if not r[2] == '':
+            file_path = maskDir + '/'+ r[1]
+            if os.path.exists(file_path):
+                img = Image.open(file_path).convert('1')
+
+                # img.show()
+                pixels = img.load()
+                
+                for i in range(img.size[0]):
+                    for j in range(img.size[1]):
+                        if pixels[i, j] == 0:
+                            pixels[i, j] = int(mask[i][j])
+                        
+            else:
+                # === Image Show ===
+                img = Image.new('1', size)
+                pixels = img.load()
+
+                for i in range(img.size[0]):
+                    for j in range(img.size[1]): 
                         pixels[i, j] = int(mask[i][j])
-                    
-        else:
-            # === Image Show ===
-            img = Image.new('1', size)
-            pixels = img.load()
+                # img.show()
+                count += 1
 
-            for i in range(img.size[0]):
-                for j in range(img.size[1]): 
-                    pixels[i, j] = int(mask[i][j])
-            # img.show()
-            count += 1
+            img.save(file_path)
+            # print('Image save ', file_path)
 
-        img.save(file_path)
-        # print('Image save ', file_path)
-
-    # if count >= 10:
-    #     break
+        # if count >= 10:
+        #     break
