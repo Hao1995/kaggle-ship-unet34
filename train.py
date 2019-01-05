@@ -49,7 +49,7 @@ print("Model output shape", model.output_shape)
 model.summary()
 
 # === 保存和恢復模型 ===
-checkpoint_path = "training_callback/cp-{epoch:04d}.ckpt"
+checkpoint_path = "training_callback/cp-{epoch:04d}-{val_acc:.2f}.ckpt"
 # checkpoint_path = "training_callback/cp.hdf5"
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
@@ -94,7 +94,7 @@ if not validate:
     # model.save(save_weights_path + "model_steps" + str(STEPS_PER_EPOCH) + ".h5")
 
     # === Epochs 
-    model.fit_generator(G, TRAIN_IMG_NUM//train_batch_size, epochs=EPOCHS, callbacks=[cp_callback])
+    history = model.fit_generator(G, TRAIN_IMG_NUM//train_batch_size, epochs=EPOCHS, callbacks=[cp_callback])
     # model.fit_generator(G, 1//train_batch_size, epochs=EPOCHS)
     model.save_weights(save_weights_path + "model_epochs." + str(EPOCHS))
     model.save(save_weights_path + "model_epochs" + str(EPOCHS) + ".h5")
@@ -103,3 +103,23 @@ else:
     model.save_weights(save_weights_path + "model_steps." + str(STEPS_PER_EPOCH))
     model.save(save_weights_path + "model_steps" + str(STEPS_PER_EPOCH) + ".h5")
 
+from keras.utils import plot_model
+plot_model(model, to_file='model.png')
+
+print(history.history.keys())
+
+fig = plt.figure()
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='lower left')
+#
+fig.savefig('performance.png')
