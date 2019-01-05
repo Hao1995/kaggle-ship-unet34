@@ -49,12 +49,17 @@ print("Model output shape", model.output_shape)
 model.summary()
 
 # === 保存和恢復模型 ===
-checkpoint_path = "training_callback/cp-{epoch:04d}.ckpt"
+checkpoint_path = "training_callback"
+try:
+	os.makedirs(checkpoint_path)
+except:
+	print('Make directory', checkpoint_path, 'happened error.')
+checkpoint_file = checkpoint_path + "/cp-{epoch:04d}.ckpt"
 # checkpoint_path = "training_callback/cp.hdf5"
-checkpoint_dir = os.path.dirname(checkpoint_path)
+checkpoint_dir = os.path.dirname(checkpoint_file)
 
 # Create checkpoint callback
-cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_path,
+cp_callback = tf.keras.callbacks.ModelCheckpoint(checkpoint_file,
                                                  save_weights_only=True,
                                                  verbose=1)
 
