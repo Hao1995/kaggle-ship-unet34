@@ -52,7 +52,7 @@ def getSegmentationArr(path, nClasses, width, height):
         img = cv2.imread(path, 1)
         img = cv2.resize(img, (width, height))
         img = img[:, :, 0]
-        cv2.imshow('seg', img)
+        # cv2.imshow('seg', img)
 
         for c in range(nClasses):
             seg_labels[:, :, c] = (img == c).astype(int)

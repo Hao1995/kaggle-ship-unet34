@@ -27,9 +27,8 @@ def predict_segmentation():
     # m.load_weights("training_callback/cp-0024.ckpt")
     
     # m.load_weights("results/model_person_99.h5")
-    m.compile(loss='categorical_crossentropy',
-              optimizer=optimizer_name,
-              metrics=['accuracy'])
+    # m.compile(loss='categorical_crossentropy', optimizer=optimizer_name, metrics=['accuracy'])
+    m.compile(loss=Models.MixedLoss, optimizer=optimizer_name, metrics=['accuracy'])
 
     images = glob.glob(images_path + "*.jpg") + glob.glob(images_path + "*.png") + glob.glob(images_path + "*.jpeg")
     images.sort()
