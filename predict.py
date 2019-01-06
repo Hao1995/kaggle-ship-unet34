@@ -7,11 +7,18 @@ import numpy as np
 def predict_segmentation():
     n_classes = 2
     images_path = 'data/test/'
-    input_width = 384
-    input_height = 384
+
+    input_width = 768
+    input_height = 768
+    output_height = 768
+    output_width = 768
     # input_width = 64
     # input_height = 96
-    epoch_number = 100
+    # output_width = 64
+    # output_height = 96
+
+    EPOCHS = 100
+    optimizer_name = 'adam'
 
     output_path = 'data/seg_results/'
 
