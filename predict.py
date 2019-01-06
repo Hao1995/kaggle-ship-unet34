@@ -18,25 +18,20 @@ def predict_segmentation():
     # output_height = 96
 
     EPOCHS = 100
+
     optimizer_name = 'adam'
 
     output_path = 'data/seg_results/'
 
     m = Models.Unet(n_classes, input_height=input_height, input_width=input_width, nChannels=3)
 
-    # m.load_weights("results/model_" + 'epochs' + str(epoch_number) + ".h5")
-
-    m.load_weights("training_callback/cp-0024.ckpt")
+    m.load_weights("results/model_" + 'epochs' + str(EPOCHS) + ".h5")
+    # m.load_weights("training_callback/cp-0024.ckpt")
     
     # m.load_weights("results/model_person_99.h5")
-    m.compile(loss='categorical_crossentropy',
-              optimizer='adam',
+    m.compile(loss=Models.MixedLoss,
+              optimizer=optimizer_name,
               metrics=['accuracy'])
-
-    output_height = 384
-    output_width = 384
-    # output_width = 64
-    # output_height = 96
 
     images = glob.glob(images_path + "*.jpg") + glob.glob(images_path + "*.png") + glob.glob(images_path + "*.jpeg")
     images.sort()
