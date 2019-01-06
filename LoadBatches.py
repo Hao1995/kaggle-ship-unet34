@@ -66,8 +66,9 @@ def getSegmentationArr(path, nClasses, width, height):
 
 def imageSegmentationGenerator(images_path, segs_path, batch_size, n_classes, input_height, input_width, output_height,
                                output_width):
-    images = os.listdir(images_path)
-    segmentations = os.listdir(segs_path)
+
+    images = [f for f in os.listdir(images_path) if os.path.isfile(os.path.join(images_path, f))]
+    segmentations = [f for f in os.listdir(segs_path) if os.path.isfile(os.path.join(segs_path, f))]
     images.sort()
     segmentations.sort()
     for i in range(len(images)):
