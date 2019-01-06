@@ -20,7 +20,7 @@ output_width = 768
 validate = False
 save_weights_path = 'results/'
 # epochs = 100
-EPOCHS = 5
+EPOCHS = 30
 STEPS_PER_EPOCH = 5
 optimizer_name = 'adam'
 

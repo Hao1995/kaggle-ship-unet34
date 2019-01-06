@@ -16,7 +16,7 @@ def predict_segmentation():
     # output_width = 64
     # output_height = 96
 
-    EPOCHS = 5
+    EPOCHS = 30
     optimizer_name = 'adam'
 
     output_path = 'data/seg_results/'

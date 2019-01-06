@@ -5,7 +5,6 @@ import random
 import itertools
 import os
 
-
 def getImageArr(path, width, height, imgNorm="sub_and_divide"):
     """
     
@@ -37,11 +36,9 @@ def getImageArr(path, width, height, imgNorm="sub_and_divide"):
             img = cv2.resize(img, (width, height))
             img = img.astype(np.float32)
             img = img / 255.0
+            
         # cv2.imshow(imgNorm+'2', img)
 
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-        # return im
         return img
     except Exception as e:
         print(path, e)
@@ -55,6 +52,7 @@ def getSegmentationArr(path, nClasses, width, height):
         img = cv2.imread(path, 1)
         img = cv2.resize(img, (width, height))
         img = img[:, :, 0]
+        cv2.imshow('seg', img)
 
         for c in range(nClasses):
             seg_labels[:, :, c] = (img == c).astype(int)
@@ -75,6 +73,11 @@ def imageSegmentationGenerator(images_path, segs_path, batch_size, n_classes, in
     for i in range(len(images)):
         images[i] = images_path + images[i]
         segmentations[i] = segs_path + segmentations[i]
+
+        # img = cv2.imread(images[i], cv2.IMREAD_COLOR)
+        # cv2.imshow('image-origin',img)
+        # img = cv2.imread(segmentations[i], cv2.IMREAD_COLOR)
+        # cv2.imshow('image-seg',img)
 
     # Make sure the length of 'images' and 'segmentations' is the same.
     assert len(images) == len(segmentations)
