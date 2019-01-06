@@ -1,10 +1,10 @@
 import Models
 import LoadBatches
 import os
-import tensorflow as tf
+import keras
 
-train_images_path = 'data/train/1img/'
-train_segs_path = 'data/label/1img/'
+train_images_path = 'data/train/'
+train_segs_path = 'data/label/'
 train_batch_size = 1
 n_classes = 2
 
@@ -43,6 +43,7 @@ try:
 except:
     print('Make directory', save_weights_path, 'happend error.')
 
+# === Make Models and Compile ===
 model = Models.Unet(n_classes, input_height=input_height, input_width=input_width, nChannels=3)
 
 model.compile(loss=Models.MixedLoss,
