@@ -63,8 +63,8 @@ except:
 
 checkpoint_file = checkpoint_path + "/weights-epoch-{epoch:04d}-acc-{acc:.2f}.hdf5"
 
-if os.path.isfile(checkpoint_file):
-    model.load_weights(checkpoint_file)
+# if os.path.isfile(checkpoint_file):
+#     model.load_weights(checkpoint_file)
 
 from keras.callbacks import ModelCheckpoint
 cp_callback = ModelCheckpoint(checkpoint_file, monitor='acc',save_weights_only=True, verbose=1)
