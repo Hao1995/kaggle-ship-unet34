@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 import cv2
+import os
+import itertools
 
 from keras import backend as K
 from keras import Model
@@ -10,15 +12,12 @@ from keras.layers import Input, Conv2D, Conv2DTranspose, MaxPooling2D, concatena
 from keras.layers import Conv2D, Concatenate, MaxPooling2D
 from keras.layers import UpSampling2D, Dropout, BatchNormalization
 
-# from skimage.transform import resize
+from skimage.transform import resize
 
-import os
-import itertools
+# import train_unet34_param as unet34Param
+from train_unet34_param import IMG_PATH, SEG_PATH, img_size_ori, img_size_target, batch_size
 
 # === Up & Down Sample ===
-img_size_ori = 768
-img_size_target = 768
-batch_size = 8 # 256:64, 384:32, 768:6(8)
 
 def upsample(img):
     if img_size_ori == img_size_target:
@@ -35,14 +34,12 @@ def downsample(img):
     #return img[:img_size_ori, :img_size_ori]
 
 # === Load Img ===
-IMG_PATH = 'data/train/'
-SEG_PATH = 'data/label/'
 # imgs_name = [f for f in os.listdir(IMG_PATH) if os.path.isfile(os.path.join(IMG_PATH, f))]
 
 # train_img = [np.array(load_img(IMG_PATH + "/{}".format(idx))) / 255 for idx in imgs_name] # load all images at once
 
 def getImgArr(path, width, height, imgNorm="none"):
-    print('getImgArr')
+    # print('getImgArr')
 
     try:
         img = cv2.imread(path)
@@ -78,16 +75,19 @@ def getImgArr(path, width, height, imgNorm="none"):
         return img
 
 def getSegArr(path, width, height):
-    print('getSegArr')
-
+    # print('getSegArr')
+    # seg_labels = np.zeros((height, width, 2))
     try:
-        img = cv2.imread(path, cv2.IMREAD_COLOR)
-        img = cv2.resize(img, (width, height))
-        cv2.imshow('seg', img)
+        img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        img_gray = cv2.resize(img_gray, (width, height))
+        # cv2.imshow('seg', img_gray)
 
-        img = np.reshape(img, (width * height, 1))
-        cv2.imshow('seg_reshpe', img)
+        (thresh, img_bool) = cv2.threshold(img_gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+        # cv2.imshow('seg_reshpe', img_bool)
+        img = np.expand_dims(img_bool, axis=2)
         return img
+
 
     except Exception as e:
         print(e)
@@ -95,7 +95,6 @@ def getSegArr(path, width, height):
         return img
 
 def imgGenerator(imgs_path, segs_path, batch_size, input_size, output_size):
-    print('imgGenerator')
 
     imgs = [f for f in os.listdir(imgs_path) if os.path.isfile(os.path.join(imgs_path, f))]
     segs = [f for f in os.listdir(segs_path) if os.path.isfile(os.path.join(segs_path, f))]
@@ -128,7 +127,41 @@ def imgGenerator(imgs_path, segs_path, batch_size, input_size, output_size):
 
         yield np.array(X), np.array(Y)
 
-gen = imgGenerator(IMG_PATH, SEG_PATH, batch_size, img_size_ori, img_size_target)
-# model.fit_generator(
-#         train_generator)
+# === Check length of input image is same with length of seg images ===
+TRAIN_IMG_NUM = len([name for name in os.listdir(IMG_PATH) if os.path.isfile(os.path.join(IMG_PATH, name))])
+TRAIN_SEG_NUM = len([name for name in os.listdir(SEG_PATH) if os.path.isfile(os.path.join(SEG_PATH, name))])
+if TRAIN_IMG_NUM != TRAIN_SEG_NUM:
+    raise Exception('TRAIN_IMG_NUM = ', TRAIN_IMG_NUM , ' ; TRAIN_SEG_NUM = ', TRAIN_SEG_NUM, '. Is not equal.')
 
+gen = imgGenerator(IMG_PATH, SEG_PATH, batch_size, img_size_ori, img_size_target)
+
+# === Loss Function ===
+from keras.losses import binary_crossentropy
+from keras import backend as K
+
+def dice_loss(y_true, y_pred):
+    smooth = 1.
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
+    intersection = y_true_f * y_pred_f
+    score = (2. * K.sum(intersection) + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
+    return 1. - score
+
+def bce_dice_loss(y_true, y_pred):
+    return binary_crossentropy(y_true, y_pred) + dice_loss(y_true, y_pred)
+
+# === Model Fitting ===
+import train_unet34_model as unet34_model
+
+model = unet34_model.UResNet34(input_shape=(img_size_target,img_size_target,3))
+model.summary()
+
+model_checkpoint = ModelCheckpoint("./keras.model", save_best_only=True, verbose=1)
+model.compile(loss=bce_dice_loss, optimizer="adam", metrics=["accuracy"])
+
+epochs = 100
+
+history = model.fit_generator(gen,
+                    TRAIN_IMG_NUM // batch_size,
+                    epochs=epochs,
+                    callbacks=[model_checkpoint])
