@@ -26,7 +26,7 @@ def predict_segmentation():
     m = Models.Unet(n_classes, input_height=input_height, input_width=input_width, nChannels=3)
 
     # m.load_weights("results/model_" + 'epochs' + str(EPOCHS) + ".h5")
-    m.load_weights("training_callback/20190106152854/weights-epoch-0074-acc-1.00.hdf5")
+    m.load_weights("training_callback/20190107095912/weights-epoch-0002-acc-0.74.hdf5")
     
     # m.load_weights("results/model_person_99.h5")
 

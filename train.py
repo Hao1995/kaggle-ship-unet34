@@ -3,8 +3,8 @@ import LoadBatches
 import os
 import keras
 
-train_images_path = 'data/train/'
-train_segs_path = 'data/label/'
+train_images_path = 'data/train/1img/'
+train_segs_path = 'data/label/1img/'
 train_batch_size = 1
 n_classes = 2
 
@@ -20,7 +20,7 @@ output_width = 768
 validate = False
 save_weights_path = 'results/'
 # epochs = 100
-EPOCHS = 1000
+EPOCHS = 100
 STEPS_PER_EPOCH = 5
 optimizer_name = 'adam'
 
