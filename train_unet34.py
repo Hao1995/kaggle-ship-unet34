@@ -10,7 +10,7 @@ from keras.layers import Input, Conv2D, Conv2DTranspose, MaxPooling2D, concatena
 from keras.layers import Conv2D, Concatenate, MaxPooling2D
 from keras.layers import UpSampling2D, Dropout, BatchNormalization
 
-from skimage.transform import resize
+# from skimage.transform import resize
 
 import os
 import itertools
@@ -42,6 +42,7 @@ SEG_PATH = 'data/label/'
 # train_img = [np.array(load_img(IMG_PATH + "/{}".format(idx))) / 255 for idx in imgs_name] # load all images at once
 
 def getImgArr(path, width, height, imgNorm="none"):
+    print('getImgArr')
 
     try:
         img = cv2.imread(path)
@@ -77,15 +78,15 @@ def getImgArr(path, width, height, imgNorm="none"):
         return img
 
 def getSegArr(path, width, height):
+    print('getSegArr')
 
     try:
-        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        img = cv2.imread(path, cv2.IMREAD_COLOR)
         img = cv2.resize(img, (width, height))
-        img = img[:, :, 0]
-        # cv2.imshow('seg', img)
+        cv2.imshow('seg', img)
 
-        # for c in range(nClasses):
-        #     seg_labels[:, :, c] = (img == c).astype(int)
+        img = np.reshape(img, (width * height, 1))
+        cv2.imshow('seg_reshpe', img)
         return img
 
     except Exception as e:
@@ -94,6 +95,7 @@ def getSegArr(path, width, height):
         return img
 
 def imgGenerator(imgs_path, segs_path, batch_size, input_size, output_size):
+    print('imgGenerator')
 
     imgs = [f for f in os.listdir(imgs_path) if os.path.isfile(os.path.join(imgs_path, f))]
     segs = [f for f in os.listdir(segs_path) if os.path.isfile(os.path.join(segs_path, f))]
@@ -126,7 +128,7 @@ def imgGenerator(imgs_path, segs_path, batch_size, input_size, output_size):
 
         yield np.array(X), np.array(Y)
 
-imgGenerator(IMG_PATH, SEG_PATH, batch_size, img_size_ori, img_size_target)
+gen = imgGenerator(IMG_PATH, SEG_PATH, batch_size, img_size_ori, img_size_target)
 # model.fit_generator(
 #         train_generator)
 
