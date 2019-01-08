@@ -167,7 +167,7 @@ except:
     print('Make directory', checkpoint_path, 'happend error.')
 
 checkpoint_file = checkpoint_path + "/weights-epoch-{epoch:04d}-acc-{acc:.3f}.hdf5"
-model_checkpoint = ModelCheckpoint(checkpoint_file, save_best_only=True, verbose=1)
+model_checkpoint = ModelCheckpoint(checkpoint_file, monitor='acc',save_weights_only=True, verbose=1)
 model.compile(loss=bce_dice_loss, optimizer="adam", metrics=["accuracy"])
 
 history = model.fit_generator(gen,
