@@ -2,7 +2,7 @@ IMG_PATH = 'data/train/'
 SEG_PATH = 'data/label/'
 SAVE_WEIGHTS_PATH = 'results/'
 
-TEST_IMG_PATH = 'data/test/'
+TEST_IMG_PATH = 'data/test/1img/'
 SEG_RESULT_PATH = 'data/seg_results/'
 
 img_size_ori = 384

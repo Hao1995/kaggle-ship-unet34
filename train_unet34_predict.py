@@ -16,12 +16,6 @@ def getImgArr(path, width, height, imgNorm="none"):
     try:
         img = cv2.imread(path)
         img = cv2.resize(img, (width, height))
-        # img = cv2.imread(path, cv2.IMREAD_COLOR)
-        # cv2.imshow(imgNorm+'0', img)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
-        # im = np.zeros((height, width, 1))
-        # cv2.imshow(imgNorm+'1', im)
 
         if imgNorm == "sub_and_divide":
             # Preprocess Input >> mode = tf (will scale pixels between -1 and 1)
@@ -85,7 +79,7 @@ import train_unet34_model as unet34_model
 model = unet34_model.UResNet34(input_shape=(img_size_ori,img_size_ori,3))
 
 # model.load_weights("training_callback/20190107095912/weights-epoch-0002-acc-0.74.hdf5")
-model.load_weights("results/model_epoch20.h5")
+model.load_weights("results/20180108_train_unet34_epochs20/model_epoch20.h5")
 
 model.compile(loss=bce_dice_loss, optimizer="adam", metrics=["accuracy"])
 
@@ -98,6 +92,7 @@ for imgName in images:
     imgName = imgName.replace('\\', '/')
     outName = imgName.replace(TEST_IMG_PATH, SEG_RESULT_PATH)
     X = getImgArr(imgName, img_size_ori, img_size_ori)
+    # cv2.imshow('X', X)
     pr = model.predict(np.array([X]))[0]
     # pr = pr.reshape((img_size_target, img_size_target, n_classes)).argmax(axis=2)
     # seg_img = np.zeros((img_size_target, img_size_target, 3))
@@ -107,4 +102,4 @@ for imgName in images:
     #     seg_img[:, :, 2] += ((pr[:, :] == c) * (colors[c][2])).astype('uint8')
     # seg_img = cv2.resize(seg_img, (input_width, input_height))
     cv2.imwrite(outName, pr)
-    cv2.imshow(outName, pr)
+    # cv2.imshow(outName, pr)
