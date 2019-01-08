@@ -15,7 +15,7 @@ from keras.layers import UpSampling2D, Dropout, BatchNormalization
 from skimage.transform import resize
 
 # import train_unet34_param as unet34Param
-from train_unet34_param import IMG_PATH, SEG_PATH, img_size_ori, img_size_target, batch_size
+from train_unet34_param import IMG_PATH, SEG_PATH, SAVE_WEIGHTS_PATH, img_size_ori, img_size_target, batch_size, epochs
 
 # === Up & Down Sample ===
 
@@ -156,12 +156,24 @@ import train_unet34_model as unet34_model
 model = unet34_model.UResNet34(input_shape=(img_size_target,img_size_target,3))
 model.summary()
 
-model_checkpoint = ModelCheckpoint("./keras.model", save_best_only=True, verbose=1)
-model.compile(loss=bce_dice_loss, optimizer="adam", metrics=["accuracy"])
+# === 保存和恢復模型 ===
+import os
+from datetime import datetime
 
-epochs = 100
+checkpoint_path = "training_callback" + "/" + datetime.now().strftime('%Y%m%d%H%M%S')
+try:
+    os.makedirs(checkpoint_path)
+except:
+    print('Make directory', checkpoint_path, 'happend error.')
+
+checkpoint_file = checkpoint_path + "/weights-epoch-{epoch:04d}-acc-{acc:.3f}.hdf5"
+model_checkpoint = ModelCheckpoint(checkpoint_file, save_best_only=True, verbose=1)
+model.compile(loss=bce_dice_loss, optimizer="adam", metrics=["accuracy"])
 
 history = model.fit_generator(gen,
                     TRAIN_IMG_NUM // batch_size,
                     epochs=epochs,
                     callbacks=[model_checkpoint])
+
+model.save_weights(save_weights_path + "model_epochs." + str(epoch))
+model.save(save_weights_path + "model_epoch" + str(epoch) + ".h5")
