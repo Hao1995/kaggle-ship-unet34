@@ -1,4 +1,9 @@
+import os
+import itertools
+
+import cv2
 import six
+import numpy as np
 
 from keras import backend as K
 from keras import Model
@@ -301,3 +306,109 @@ def UResNet34(input_shape=(None, None, 3), classes=1, decoder_filters=16, decode
     model.name = 'u-resnet34'
 
     return model
+
+# === Loss Function ===
+from keras.losses import binary_crossentropy
+from keras import backend as K
+
+def dice_loss(y_true, y_pred):
+    smooth = 1.
+    y_true_f = K.flatten(y_true)
+    y_pred_f = K.flatten(y_pred)
+    intersection = y_true_f * y_pred_f
+    score = (2. * K.sum(intersection) + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
+    return 1. - score
+
+def bce_dice_loss(y_true, y_pred):
+    return binary_crossentropy(y_true, y_pred) + dice_loss(y_true, y_pred)
+
+# === Load Img ===
+
+def getImgArr(path, width, height, imgNorm="none"):
+    # print('getImgArr')
+
+    try:
+        img = cv2.imread(path)
+        img = cv2.resize(img, (width, height))
+        # img = cv2.imread(path, cv2.IMREAD_COLOR)
+        # cv2.imshow(imgNorm+'0', img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
+        # im = np.zeros((height, width, 1))
+        # cv2.imshow(imgNorm+'1', im)
+
+        if imgNorm == "sub_and_divide":
+            # Preprocess Input >> mode = tf (will scale pixels between -1 and 1)
+            # im[:,:,0] = np.float32(img) / 127.5 -1 
+            # im[:,:,0] = np.float32(cv2.resize(img, (width, height))) / 127.5 -1 
+            img = np.float32(img) / 127.5 - 1
+        elif imgNorm == "sub_mean":
+            # Preprocess Input >> mode = caffe (will convert the images from RGB to BGR, then will zero-center each color channel with respect to the ImageNet dataset)
+            img = img.astype(np.float32)
+            img[:, :, 0] -= 103.939 # B
+            img[:, :, 1] -= 116.779 # G
+            img[:, :, 2] -= 123.68 # R
+        elif imgNorm == "divide":
+            # Preprocess Input >> mode = torch (will scale pixels between 0 and 1 and then will normalize each channel with respect to the ImageNet dataset)
+            img = img.astype(np.float32)
+            img = img / 255.0
+            
+        # cv2.imshow(imgNorm+'2', img)
+        return img
+    except Exception as e:
+        print(path, e)
+        img= np.zeros((height, width, 3))
+        return img
+
+def getSegArr(path, width, height):
+    # print('getSegArr')
+    # seg_labels = np.zeros((height, width, 2))
+    try:
+        img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        img_gray = cv2.resize(img_gray, (width, height))
+        # cv2.imshow('seg', img_gray)
+
+        (thresh, img_bool) = cv2.threshold(img_gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+
+        # cv2.imshow('seg_reshpe', img_bool)
+        img = np.expand_dims(img_bool, axis=2)
+        return img
+
+
+    except Exception as e:
+        print(e)
+        img = np.zeros((height, width, 1))
+        return img
+
+def imgGenerator(imgs_path, segs_path, batch_size, input_size, output_size):
+
+    imgs = [f for f in os.listdir(imgs_path) if os.path.isfile(os.path.join(imgs_path, f))]
+    segs = [f for f in os.listdir(segs_path) if os.path.isfile(os.path.join(segs_path, f))]
+    imgs.sort()
+    segs.sort()
+
+    for i in range(len(imgs)):
+        imgs[i] = imgs_path + imgs[i]
+        segs[i] = segs_path + segs[i]
+
+        # img = cv2.imread(images[i], cv2.IMREAD_COLOR)
+        # cv2.imshow('image-origin',img)
+        # img = cv2.imread(segmentations[i], cv2.IMREAD_COLOR)
+        # cv2.imshow('image-seg',img)
+
+    assert len(imgs) == len(segs)
+    for img, seg in zip(imgs, segs):
+        assert (img.split('/')[-1].split(".")[0] == seg.split('/')[-1].split(".")[0])
+
+    # 'itertools.cycle' EX: [a,b,c] >> [a,b,c,a,b,c,a, ... , c, a, ...]. infinite loop.
+    zipped = itertools.cycle(zip(imgs, segs))
+
+    while True:
+        X = []
+        Y = []
+        for _ in range(batch_size):
+            im, seg = next(zipped)
+            X.append(getImgArr(im, input_size, input_size))
+            Y.append(getSegArr(seg, input_size, input_size))
+
+        yield np.array(X), np.array(Y)
