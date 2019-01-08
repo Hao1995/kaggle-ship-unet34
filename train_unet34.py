@@ -175,5 +175,5 @@ history = model.fit_generator(gen,
                     epochs=epochs,
                     callbacks=[model_checkpoint])
 
-model.save_weights(save_weights_path + "model_epochs." + str(epoch))
-model.save(save_weights_path + "model_epoch" + str(epoch) + ".h5")
+model.save_weights(SAVE_WEIGHTS_PATH + "model_epochs." + str(epoch))
+model.save(SAVE_WEIGHTS_PATH + "model_epoch" + str(epoch) + ".h5")
