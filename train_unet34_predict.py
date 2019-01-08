@@ -7,7 +7,7 @@ from keras.losses import binary_crossentropy
 from keras import backend as K
 
 # import train_unet34_param as unet34Param
-from train_unet34_param import img_size_ori, img_size_target TEST_IMG_PATH, SEG_RESULT_PATH
+from train_unet34_param import img_size_ori, img_size_target, TEST_IMG_PATH, SEG_RESULT_PATH
 
 def getImgArr(path, width, height, imgNorm="none"):
     # print('getImgArr')
@@ -83,7 +83,8 @@ import train_unet34_model as unet34_model
 
 model = unet34_model.UResNet34(input_shape=(img_size_ori,img_size_ori,3))
 
-model.load_weights("training_callback/20190107095912/weights-epoch-0002-acc-0.74.hdf5")
+# model.load_weights("training_callback/20190107095912/weights-epoch-0002-acc-0.74.hdf5")
+model.load_weights("results/model_epoch20.h5")
 
 model.compile(loss=bce_dice_loss, optimizer="adam", metrics=["accuracy"])
 
