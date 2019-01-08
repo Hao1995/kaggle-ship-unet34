@@ -1,5 +1,5 @@
-IMG_PATH = 'data/train/1img/'
-SEG_PATH = 'data/label/1img/'
+IMG_PATH = 'data/train/'
+SEG_PATH = 'data/label/'
 SAVE_WEIGHTS_PATH = 'results/'
 
 TEST_IMG_PATH = 'data/train/'
