@@ -4,3 +4,4 @@ unet_person_venv/
 my_venv/
 __pycache__/
 training_callback/
+.vscode/
