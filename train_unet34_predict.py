@@ -28,7 +28,7 @@ for imgName in images:
     # Ground Truth
     labelName = imgName.replace(TEST_IMG_PATH, SEG_PATH)
     label = unet34_model.getImgArr(labelName, img_size_ori, img_size_ori)
-    cv2.imshow('Ground Truth', label)
+    # cv2.imshow('Ground Truth', label)
 
     # Predict
     pr = model.predict(np.array([input]))[0]
@@ -42,8 +42,8 @@ for imgName in images:
     img_bw[:,:,0] = ((pr_rgb_tmp[:,:,0] > 127) * 255).astype(np.uint8)
     img_bw[:,:,1] = ((pr_rgb_tmp[:,:,1] > 127) * 255).astype(np.uint8)
     img_bw[:,:,2] = ((pr_rgb_tmp[:,:,2] > 127) * 255).astype(np.uint8)
-    cv2.imshow('Predict(black & white)', img_bw)
-    cv2.imwrite(outName, img_bw)    
+    # cv2.imshow('Predict(black & white)', img_bw)
+    cv2.imwrite(outName, img_bw)
 
     # img = img_as_ubyte(pr_rgb)
     # cv2.imshow('Predict', img)

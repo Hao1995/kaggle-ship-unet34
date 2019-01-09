@@ -10,3 +10,5 @@ img_size_target = 384
 batch_size = 1 # 256:64, 384:32, 768:6(8)
 epochs = 10
 
+threshold = 0.5
+
