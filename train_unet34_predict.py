@@ -23,7 +23,7 @@ for imgName in images:
 
     # Input
     input = unet34_model.getImgArr(imgName, img_size_ori, img_size_ori)
-    cv2.imshow('Input', input)
+    # cv2.imshow('Input', input)
 
     # Ground Truth
     labelName = imgName.replace(TEST_IMG_PATH, SEG_PATH)
@@ -51,6 +51,6 @@ for imgName in images:
 
     #
 
-    print(os.path.basename(imgName))
+    # print(os.path.basename(imgName))
     
 
