@@ -37,8 +37,6 @@ def get_score(preds, grounds, threshold):
     b = 4 # B^2 , B=2 >> b=4
     n_th = 10
     thresholds = [threshold + 0.05*i for i in range(n_th)]
-    
-    ious = []
     score = 0
 
     for t in thresholds:
@@ -79,7 +77,7 @@ def get_score(preds, grounds, threshold):
 # grounds = get_ground_true(img_id, seg_df, img_size_ori)
 
 
-# === Calculate Score ===
+# === Calculate Score Test ===
 # ground_img = np.array([[0,1,1,1,0],
 #                         [0,0,0,0,0],
 #                         [1,1,0,1,1],
@@ -100,3 +98,4 @@ def get_score(preds, grounds, threshold):
 # score = get_score(preds, grounds, threshold)
 
 # print(score)
+# =============================

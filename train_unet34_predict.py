@@ -48,9 +48,7 @@ for imgName in images:
     # img = img_as_ubyte(pr_rgb)
     # cv2.imshow('Predict', img)
     # cv2.imwrite(outName, img)
-
-    #
-
+    
     # print(os.path.basename(imgName))
     
 
