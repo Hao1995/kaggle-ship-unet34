@@ -30,7 +30,8 @@ model.summary()
 import os
 from datetime import datetime
 
-checkpoint_path = "training_callback" + "/" + datetime.now().strftime('%Y%m%d%H%M')
+weights_path = SAVE_WEIGHTS_PATH + "/" + datetime.now().strftime('%Y%m%d%H%M')
+checkpoint_path = weights_path + "/training_callback"
 try:
     os.makedirs(checkpoint_path)
 except:
@@ -45,5 +46,27 @@ history = model.fit_generator(gen,
                     epochs=epochs,
                     callbacks=[model_checkpoint])
 
-model.save_weights(SAVE_WEIGHTS_PATH + "model_epochs." + str(epochs))
-model.save(SAVE_WEIGHTS_PATH + "model_epoch" + str(epochs) + ".h5")
+model.save(weights_path + "weights_complete.h5")
+
+from keras.utils import plot_model
+plot_model(model, to_file=weights_path+'/model.png')
+
+import matplotlib.pyplot as plt
+print(history.history.keys())
+
+
+fig = plt.figure()
+
+plt.plot(history.history['acc'])
+plt.title('Model Accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train'], loc='lower left')
+fig.savefig(weights_path+'/model_accuracy.png')
+
+plt.plot(history.history['loss'])
+plt.title('Model Loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train'], loc='lower left')
+fig.savefig(weights_path+'/model_loss.png')
