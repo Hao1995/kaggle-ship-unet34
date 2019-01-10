@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from train_unet34_param import img_size_ori, img_size_target, threshold
-from train_unet34_param import SEG_PATH, SEG_FILE, TEST_IMG_PATH, SEG_RESULT_PATH, SCORE_RESULT_PATH
+from train_unet34_param import SEG_PATH,SCORE_RESULT_PATH, SEG_FILE, TEST_IMG_PATH, SEG_RESULT_PATH, SCORE_RESULT_PATH
 import train_unet34_score as eval_score
 import train_unet34_model as unet34_model
 
@@ -33,6 +33,15 @@ except:
     print('Make directory', SCORE_RESULT_PATH, 'happend error.')
 # ==================================================
 
+# === Create A Score CSV File ===
+import csv
+
+score_file = SCORE_RESULT_PATH + 'ship_score.csv'
+csvfile = open(score_file, 'w')
+filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+filewriter.writerow(['ImageId', 'F2-Score'])
+# ===============================
+
 # from skimage import img_as_ubyte
 
 for imgName in images:
@@ -44,10 +53,14 @@ for imgName in images:
     input = unet34_model.getImgArr(imgName, img_size_ori, img_size_ori)
     # cv2.imshow('Input', input)
 
-    # Ground Truth
-    labelName = imgName.replace(TEST_IMG_PATH, SEG_PATH)
-    label = unet34_model.getImgArr(labelName, img_size_ori, img_size_ori)
+    # === Ground Truth ===
+    # By Real Img
+    # labelName = imgName.replace(TEST_IMG_PATH, SEG_PATH)
+    # label = unet34_model.getImgArr(labelName, img_size_ori, img_size_ori)
+    # By Seg CSV
+    # label = unet34_model.getSegArrByCSV(img_id, seg_df, img_size_ori, img_size_ori) # chan1
     # cv2.imshow('Ground Truth', label)
+    # ====================
 
     # === Predict ===
     pr = model.predict(np.array([input]))[0] # chan 1
@@ -86,6 +99,10 @@ for imgName in images:
     # cv2.imwrite(outName, img)
     # ======================================
     
+    # === Write to CSV ===
+    filewriter.writerow([img_id, score])
+    # ====================
+
     print(img_id,' - score :', score)
     
-
+csvfile.close()

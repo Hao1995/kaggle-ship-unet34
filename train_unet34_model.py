@@ -389,6 +389,27 @@ def getSegArr(path, width, height):
         img = np.zeros((height, width, 1))
         return img
 
+def getSegArrByCSV(img_id, df, input_sz, output_sz):
+    img = np.zeros(input_sz*input_sz, dtype=np.uint8)
+    masks = df.loc[img_id]['EncodedPixels']
+    if(type(masks) == float): 
+        img = img.reshape((input_sz, input_sz))
+        img = cv2.resize(img, (output_sz, output_sz))
+        img = np.expand_dims(img, axis=2)
+        return img
+    if(type(masks) == str): masks = [masks]
+    for mask in masks:
+        s = mask.split()
+        for i in range(len(s)//2):
+            start = int(s[2*i]) - 1
+            length = int(s[2*i+1])
+            img[start:start+length] = 255
+    img = img.reshape((input_sz, input_sz)).T
+    img = cv2.resize(img, (output_sz, output_sz))
+    img = np.expand_dims(img, axis=2)
+    # cv2.imshow('seg', img)
+    return img
+
 def imgGenerator(imgs_path, segs_path, batch_size, input_size, output_size):
 
     imgs = [f for f in os.listdir(imgs_path) if os.path.isfile(os.path.join(imgs_path, f))]
