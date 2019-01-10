@@ -62,9 +62,9 @@ def get_score(preds, grounds, threshold):
 
             if h_idx > -1:
                 tp_map_dict[ground_idx] = [h_idx, h_score]
+                del preds_cp[h_idx]
             else:
                 fn += 1
-            del preds_cp[h_idx]
                 
         tp = len(tp_map_dict)
         fp = len(preds_cp)
