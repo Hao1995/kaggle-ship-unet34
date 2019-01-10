@@ -14,7 +14,7 @@ def split_mask(img):
         result.append(obj)
     return result
 
-def get_ground_true(img_id, df, img_size_ori): #return mask for each ship
+def get_ground_truth(img_id, df, img_size_ori): #return mask for each ship
     masks = df.loc[img_id]['EncodedPixels']
     if(type(masks) == float): return []
     if(type(masks) == str): masks = [masks]
@@ -25,8 +25,10 @@ def get_ground_true(img_id, df, img_size_ori): #return mask for each ship
         for i in range(len(s)//2):
             start = int(s[2*i]) - 1
             length = int(s[2*i+1])
-            img[start:start+length] = 255
-        result.append(img.reshape((img_size_ori*img_size_ori)).T)
+            img[start:start+length] = 1
+        img = img.reshape((img_size_ori, img_size_ori)).T
+        img = np.expand_dims(img, axis=2)
+        result.append(img)
     return result
 
 def IoU(pred, ground):
