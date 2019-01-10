@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from train_unet34_param import img_size_ori, img_size_target, threshold
-from train_unet34_param import SEG_PATH,SCORE_RESULT_PATH, SEG_FILE, TEST_IMG_PATH, SEG_RESULT_PATH, SCORE_RESULT_PATH
+from train_unet34_param import SEG_PATH, SCORE_RESULT_PATH, SEG_FILE, TEST_IMG_PATH, SEG_RESULT_PATH, INTER_RESULT_PATH,SCORE_RESULT_PATH
 import train_unet34_score as eval_score
 import train_unet34_model as unet34_model
 
@@ -26,9 +26,14 @@ model.load_weights("results/20190109_train_unet34_epochs1_inputAll/weights-epoch
 images = glob.glob(TEST_IMG_PATH + "*.jpg") + glob.glob(TEST_IMG_PATH + "*.png") + glob.glob(TEST_IMG_PATH + "*.jpeg")
 images.sort()
 
-# === Make a directory for saving the score file ===
+# === Make a directory for saving the score file and intersection img ===
 try:
     os.makedirs(SCORE_RESULT_PATH)
+except:
+    print('Make directory', SCORE_RESULT_PATH, 'happend error.')
+
+try:
+    os.makedirs(INTER_RESULT_PATH)
 except:
     print('Make directory', SCORE_RESULT_PATH, 'happend error.')
 # ==================================================
@@ -47,7 +52,8 @@ except:
 for imgName in images:
     imgName = imgName.replace('\\', '/')
     img_id = os.path.basename(imgName)
-    # outName = imgName.replace(TEST_IMG_PATH, SEG_RESULT_PATH)
+    outName = imgName.replace(TEST_IMG_PATH, SEG_RESULT_PATH)
+    interName = imgName.replace(TEST_IMG_PATH, INTER_RESULT_PATH)
 
     # Input
     input = unet34_model.getImgArr(imgName, img_size_ori, img_size_ori)
@@ -109,16 +115,17 @@ for imgName in images:
     # =======================================
 
     # === Plot Result ===
-    cv2.imshow('Input', input)
-    cv2.imshow('Ground Truth', label)
-    cv2.imshow('Prediction', pr_b*255)
-    cv2.imshow('Intersection', img_bl)
+    # cv2.imshow('Input', input)
+    # cv2.imshow('Ground Truth', label)
+    # cv2.imshow('Prediction', pr_b*255)
+    # cv2.imshow('Intersection', img_bl)
+    cv2.imwrite(interName, img_bl)
     # ===================
 
     # === Write to CSV ===
     # filewriter.writerow([img_id, score])
     # ====================
 
-    print(img_id,' - score :', score)
+    print(img_id,'- score :', score)
     
 # csvfile.close()

@@ -30,7 +30,7 @@ model.summary()
 import os
 from datetime import datetime
 
-weights_path = SAVE_WEIGHTS_PATH + "/" + datetime.now().strftime('%Y%m%d%H%M')
+weights_path = SAVE_WEIGHTS_PATH + datetime.now().strftime('%Y%m%d%H%M')
 checkpoint_path = weights_path + "/training_callback"
 try:
     os.makedirs(checkpoint_path)
@@ -48,12 +48,12 @@ history = model.fit_generator(gen,
 
 model.save(weights_path + "weights_complete.h5")
 
-from keras.utils import plot_model
-plot_model(model, to_file=weights_path+'/model.png')
+# from keras.utils import plot_model
+# os.environ["PATH"] += os.pathsep + 'F:/Program Files (x86)/Graphviz2.38/bin'
+# plot_model(model, to_file=weights_path+'/model.png')
 
 import matplotlib.pyplot as plt
 print(history.history.keys())
-
 
 fig = plt.figure()
 

@@ -5,6 +5,7 @@ SEG_FILE = 'data/train_ship_segmentations_v2.csv'
 
 TEST_IMG_PATH = 'data/train/ship/'
 SEG_RESULT_PATH = 'data/seg_results/'
+INTER_RESULT_PATH = 'data/inter_results/'
 SCORE_RESULT_PATH = 'data/score_results/'
 
 img_size_ori = 768

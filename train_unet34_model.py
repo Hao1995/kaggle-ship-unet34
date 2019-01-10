@@ -333,12 +333,12 @@ def MixedLoss(y_true, y_pred, beta=10.0, alpha=0.75, gamma=2.0):
 
 # === Load Img ===
 
-def getImgArr(path, width, height, imgNorm="none"):
+def getImgArr(path, output_sz, imgNorm="none"):
     # print('getImgArr')
 
     try:
         img = cv2.imread(path)
-        img = cv2.resize(img, (width, height))
+        img = cv2.resize(img, (output_sz, output_sz))
         # img = cv2.imread(path, cv2.IMREAD_COLOR)
         # cv2.imshow(imgNorm+'0', img)
         # cv2.waitKey(0)
@@ -366,15 +366,15 @@ def getImgArr(path, width, height, imgNorm="none"):
         return img
     except Exception as e:
         print(path, e)
-        img= np.zeros((height, width, 3))
+        img= np.zeros((output_sz, output_sz, 3))
         return img
 
-def getSegArr(path, width, height):
+def getSegArr(path, output_sz):
     # print('getSegArr')
     # seg_labels = np.zeros((height, width, 2))
     try:
         img_gray = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-        img_gray = cv2.resize(img_gray, (width, height))
+        img_gray = cv2.resize(img_gray, (output_sz, output_sz))
         # cv2.imshow('seg', img_gray)
 
         (thresh, img_bool) = cv2.threshold(img_gray, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
@@ -386,7 +386,7 @@ def getSegArr(path, width, height):
 
     except Exception as e:
         print(e)
-        img = np.zeros((height, width, 1))
+        img = np.zeros((output_sz, output_sz, 1))
         return img
 
 def getSegArrByCSV(img_id, df, input_sz, output_sz):
@@ -410,7 +410,7 @@ def getSegArrByCSV(img_id, df, input_sz, output_sz):
     # cv2.imshow('seg', img)
     return img
 
-def imgGenerator(imgs_path, segs_path, batch_size, input_size, output_size):
+def imgGenerator(imgs_path, segs_path, batch_size, input_sz, output_sz):
 
     imgs = [f for f in os.listdir(imgs_path) if os.path.isfile(os.path.join(imgs_path, f))]
     segs = [f for f in os.listdir(segs_path) if os.path.isfile(os.path.join(segs_path, f))]
@@ -438,7 +438,7 @@ def imgGenerator(imgs_path, segs_path, batch_size, input_size, output_size):
         Y = []
         for _ in range(batch_size):
             im, seg = next(zipped)
-            X.append(getImgArr(im, input_size, input_size))
-            Y.append(getSegArr(seg, input_size, input_size))
+            X.append(getImgArr(im, output_sz))
+            Y.append(getSegArr(seg, output_sz))
 
         yield np.array(X), np.array(Y)
