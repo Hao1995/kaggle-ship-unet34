@@ -34,12 +34,12 @@ except:
 # ==================================================
 
 # === Create A Score CSV File ===
-import csv
+# import csv
 
-score_file = SCORE_RESULT_PATH + 'ship_score.csv'
-csvfile = open(score_file, 'w')
-filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-filewriter.writerow(['ImageId', 'F2-Score'])
+# score_file = SCORE_RESULT_PATH + 'ship_score.csv'
+# csvfile = open(score_file, 'w')
+# filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+# filewriter.writerow(['ImageId', 'F2-Score'])
 # ===============================
 
 # from skimage import img_as_ubyte
@@ -58,20 +58,21 @@ for imgName in images:
     # labelName = imgName.replace(TEST_IMG_PATH, SEG_PATH)
     # label = unet34_model.getImgArr(labelName, img_size_ori, img_size_ori)
     # By Seg CSV
-    # label = unet34_model.getSegArrByCSV(img_id, seg_df, img_size_ori, img_size_ori) # chan1
+    label = unet34_model.getSegArrByCSV(img_id, seg_df, img_size_ori, img_size_ori) # chan1, 0~255
     # cv2.imshow('Ground Truth', label)
     # ====================
 
-    # === Predict ===
+    # === Pred ===
     pr = model.predict(np.array([input]))[0] # chan 1
     # cv2.imshow('pr', pr)
 
-    # === Convert 1 Channels Image to Boolean Image ===
+    # === Pred - Convert 1 Channels Image to Boolean Image ===
     pr_b = np.copy(pr)
     pr_b_max = np.amax(pr_b)
     pr_b = pr_b / pr_b_max 
-    pr_b = (pr_b > 0.5).astype(np.uint8)
+    pr_b = (pr_b > 0.5).astype(np.uint8) # 0~1
     # cv2.imshow('pr_b', pr_b*255)
+    # ========================================================
 
     # === Evaluate ===
     preds = eval_score.split_mask(pr_b)
@@ -98,11 +99,26 @@ for imgName in images:
     # cv2.imshow('Predict', img)
     # cv2.imwrite(outName, img)
     # ======================================
-    
+
+    # === Combine Pred Img & Ground Truth ===
+    img_bl = np.zeros([img_size_ori,img_size_ori,3],dtype=np.uint8)
+    pr_b_tmp = pr_b*255
+    img_bl[:,:,2] = (label[:,:,0] - pr_b_tmp[:,:,0]).clip(min=0) #R
+    img_bl[:,:,1] = (pr_b_tmp[:,:,0] - label[:,:,0]).clip(min=0) #G
+    img_bl[:,:,0] = pr_b[:,:,0]*label[:,:,0] #B
+    # =======================================
+
+    # === Plot Result ===
+    cv2.imshow('Input', input)
+    cv2.imshow('Ground Truth', label)
+    cv2.imshow('Prediction', pr_b*255)
+    cv2.imshow('Intersection', img_bl)
+    # ===================
+
     # === Write to CSV ===
-    filewriter.writerow([img_id, score])
+    # filewriter.writerow([img_id, score])
     # ====================
 
     print(img_id,' - score :', score)
     
-csvfile.close()
+# csvfile.close()
