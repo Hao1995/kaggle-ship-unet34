@@ -46,7 +46,7 @@ history = model.fit_generator(gen,
                     epochs=epochs,
                     callbacks=[model_checkpoint])
 
-model.save(weights_path + "weights_complete.h5")
+model.save(weights_path + "/weights_complete.h5")
 
 # from keras.utils import plot_model
 # os.environ["PATH"] += os.pathsep + 'F:/Program Files (x86)/Graphviz2.38/bin'
