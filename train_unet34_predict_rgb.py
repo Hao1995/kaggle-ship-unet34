@@ -20,8 +20,9 @@ model = unet34_model.UResNet34(input_shape=(img_size_ori,img_size_ori,3))
 # model.summary()
 
 print('Load Weights >>>>>>')
-# model.load_weights("training_callback/20190107095912/weights-epoch-0002-acc-0.74.hdf5")
-model.load_weights("results/20190109_train_unet34_epochs1_inputAll/weights-epoch-0001-acc-0.887.hdf5")
+# model.load_weights("results/unet34_epochs10_bceDice_all_384/weights_complete.h5")
+model.load_weights("results/20190110_train_unet34_epochs10_384_bcedice_all/training_callback/weights-epoch-0003-acc-0.945.hdf5")
+# model.load_weights("results/20190109_train_unet34_epochs1_inputAll/weights-epoch-0001-acc-0.887.hdf5")
 
 images = glob.glob(TEST_IMG_PATH + "*.jpg") + glob.glob(TEST_IMG_PATH + "*.png") + glob.glob(TEST_IMG_PATH + "*.jpeg")
 images.sort()
@@ -39,12 +40,12 @@ except:
 # ==================================================
 
 # === Create A Score CSV File ===
-# import csv
+import csv
 
-# score_file = SCORE_RESULT_PATH + 'ship_score.csv'
-# csvfile = open(score_file, 'w')
-# filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-# filewriter.writerow(['ImageId', 'F2-Score'])
+score_file = SCORE_RESULT_PATH + 'ship_score.csv'
+csvfile = open(score_file, 'w')
+filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+filewriter.writerow(['ImageId', 'F2-Score'])
 # ===============================
 
 # from skimage import img_as_ubyte
@@ -115,17 +116,17 @@ for imgName in images:
     # =======================================
 
     # === Plot Result ===
-    # cv2.imshow('Input', input)
-    # cv2.imshow('Ground Truth', label)
-    # cv2.imshow('Prediction', pr_b*255)
-    # cv2.imshow('Intersection', img_bl)
+    cv2.imshow('Input', input)
+    cv2.imshow('Ground Truth', label)
+    cv2.imshow('Prediction', pr_b*255)
+    cv2.imshow('Intersection', img_bl)
     cv2.imwrite(interName, img_bl)
     # ===================
 
     # === Write to CSV ===
-    # filewriter.writerow([img_id, score])
+    filewriter.writerow([img_id, score])
     # ====================
 
     print(img_id,'- score :', score)
     
-# csvfile.close()
+csvfile.close()
