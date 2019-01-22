@@ -7,4 +7,4 @@
 * [UNet+ResNet34 in keras](https://www.kaggle.com/meaninglesslives/unet-resnet34-in-keras/notebook)
 
 ## Result
-![Predict Result](https://github.com/TianzhongSong/Unet-for-Person-Segmentation/blob/master/prediction-result.jpg)
+![Predict Result](https://github.com/Hao1995/kaggle-ship-unet34/blob/master/prediction-result.jpg)
