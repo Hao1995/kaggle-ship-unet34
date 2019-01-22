@@ -92,3 +92,28 @@ def segnet(nClasses, optimizer=None, input_height=96, input_width=64):
         model.compile(loss="categorical_crossentropy", optimizer=optimizer, metrics=['accuracy'])
 
     return model
+
+# === Loss Function ===
+import tensorflow as tf
+from keras import backend as K
+
+def dice_coef(y_true, y_pred, smooth=1):
+    """
+    Dice = (2*|X & Y|)/ (|X|+ |Y|)
+         =  2*sum(|A*B|)/(sum(A^2)+sum(B^2))
+    ref: https://arxiv.org/pdf/1606.04797v1.pdf
+    """
+    intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
+    return (2. * intersection + smooth) / (K.sum(K.square(y_true),-1) + K.sum(K.square(y_pred),-1) + smooth)
+
+
+def dice_loss(y_true, y_pred):
+    return 1-dice_coef(y_true, y_pred)
+
+def focal_loss(y_true, y_pred, alpha=10.0, gamma=2.0):
+    pt_1 = tf.where(tf.equal(y_true, 1), y_pred, tf.ones_like(y_pred))
+    pt_0 = tf.where(tf.equal(y_true, 0), y_pred, tf.zeros_like(y_pred))
+    return -K.sum(alpha * K.pow(1. - pt_1, gamma) * K.log(pt_1))-K.sum((1-alpha) * K.pow( pt_0, gamma) * K.log(1. - pt_0))
+
+def MixedLoss(y_true, y_pred, beta=10.0, alpha=0.75, gamma=2.0):
+    return beta*focal_loss(alpha, gamma, y_true, y_pred) - K.log(dice_loss(y_true, y_pred))
