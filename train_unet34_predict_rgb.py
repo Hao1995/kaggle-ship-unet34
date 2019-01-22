@@ -43,16 +43,26 @@ except:
 import csv
 
 score_file = SCORE_RESULT_PATH + 'ship_score.csv'
-csvfile = open(score_file, 'w')
+exists = os.path.isfile(score_file)
+csvfile = open(score_file, 'a', newline='')
 filewriter = csv.writer(csvfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-filewriter.writerow(['ImageId', 'F2-Score'])
+if not exists:
+    filewriter.writerow(['ImageId', 'F2-Score'])
+
 # ===============================
 
 # from skimage import img_as_ubyte
 
+# === Exclude Existed Result ===
+exist_files = [f for f in os.listdir(INTER_RESULT_PATH) if os.path.isfile(os.path.join(INTER_RESULT_PATH, f))]
+# ==============================
+
 for imgName in images:
     imgName = imgName.replace('\\', '/')
     img_id = os.path.basename(imgName)
+
+    if img_id in exist_files: continue # Avoiding repeat same work.
+
     outName = imgName.replace(TEST_IMG_PATH, SEG_RESULT_PATH)
     interName = imgName.replace(TEST_IMG_PATH, INTER_RESULT_PATH)
 
@@ -116,10 +126,10 @@ for imgName in images:
     # =======================================
 
     # === Plot Result ===
-    cv2.imshow('Input', input)
-    cv2.imshow('Ground Truth', label)
-    cv2.imshow('Prediction', pr_b*255)
-    cv2.imshow('Intersection', img_bl)
+    # cv2.imshow('Input', input)
+    # cv2.imshow('Ground Truth', label)
+    # cv2.imshow('Prediction', pr_b*255)
+    # cv2.imshow('Intersection', img_bl)
     cv2.imwrite(interName, img_bl)
     # ===================
 
